@@ -10,29 +10,37 @@ class Homepage extends React.Component{
         this.state = {
             input: '',
             imageUrl: '',
-            box: {}
+            box: []
         }
     }
 
     caclulateFaceLocation = (data) => {
-        const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+        console.log('data',data);
+        let newBox = [];
         const image = document.getElementById('inputImage');
         const width = Number(image.width);
         const height = Number(image.height);
-        return {
-            leftCol: clarifaiFace.left_col * width,
-            topRow: clarifaiFace.top_row * height,
-            rightCol: width - (clarifaiFace.right_col * width),
-            bottomRow: height - (clarifaiFace.bottom_row * height)
+        
+        for( let i = 0; i < data.outputs[0].data.regions.length; ++i){
+            const clarifaiFace = data.outputs[0].data.regions[i].region_info.bounding_box;
+            newBox.push(
+                {leftCol: clarifaiFace.left_col * width,
+                topRow: clarifaiFace.top_row * height,
+                rightCol: width - (clarifaiFace.right_col * width),
+                bottomRow: height - (clarifaiFace.bottom_row * height)}
+            );
         }
+        return newBox;
     }
+        
     displayFaceBox = (box) => {
-        console.log(box);
         this.setState({box: box});
     }
+
     onInputChange = (event) => {
         this.setState({input: event.target.value});
     }
+
     onButtonSubmit = () => {
         this.setState({imageUrl: this.state.input});
         fetch('https://mysterious-cliffs-07634.herokuapp.com/imageurl',{
@@ -63,7 +71,5 @@ class Homepage extends React.Component{
         );
     }
 }
-    
-
 
 export default Homepage;
